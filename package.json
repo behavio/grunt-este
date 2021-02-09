@@ -1,38 +1,40 @@
 {
   "name": "grunt-este",
-  "version": "2.3.1",
-  "description": "Este Grunt tasks",
+  "version": "2.5.0",
+  "description": "Everything you need for Google Closure. Precise configuration, Soy templates, localization, TDD stack, and even CoffeeScript support. File watcher included.",
   "keywords": [
     "Closure",
     "CoffeeScript",
     "Compiler",
+    "Este",
     "Google",
     "gruntplugin",
     "Mocha",
-    "Soy",
-    "Stylus"
+    "Soy"
   ],
   "author": "Daniel Steigerwald <daniel@steigerwald.cz>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Steida/grunt-este.git"
+    "url": "https://github.com/steida/grunt-este.git"
   },
   "dependencies": {
-    "coffee-script": "~1.6.3",
-    "coffee2closure": "~0.0.14",
-    "esprima": "~1.0.3",
-    "mocha": "~1.11.0",
-    "require-uncache": "~0.0.1",
-    "sinon": "~1.7.2",
-    "stylus": "~0.32.1",
+    "chai": "~1.9.0",
+    "coffee-script": "~1.7.1",
+    "coffee2closure": "~0.1.0",
+    "esprima": "~1.0.4",
+    "mocha": "~1.17.0",
+    "require-uncache": "~0.0.2",
+    "sinon": "~1.8.1",
     "temporary": "~0.0.5",
     "wrench": "~1.5.1",
-    "chai": "~1.7.2"
+    "di": "0.0.1",
+    "jsdom": "~0.10.0"
   },
   "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-jshint": "~0.6.0",
-    "grunt-release": "~0.3.5"
+    "grunt": "~0.4.2",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-release": "~0.6.0",
+    "grunt-simple-mocha": "~0.4.0"
   },
   "scripts": {
     "test": "grunt test"

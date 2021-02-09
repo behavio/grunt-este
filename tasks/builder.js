@@ -16,7 +16,7 @@ module.exports = function (grunt) {
   var Tempfile = require('temporary/lib/file');
   var wrench = require('wrench');
 
-  grunt.registerMultiTask('esteBuilder', 'Google Closure dependency calculator.',
+  grunt.registerMultiTask('esteBuilder', 'Builder for Google Closure application',
     function () {
 
       var options = this.options({
@@ -77,17 +77,9 @@ module.exports = function (grunt) {
       , pythonBin: 'python'
 
         /**
-         * There are several java flags, for huge compilation speed improvement.
-         * -client flag should work everywhere. Take a look into jscompiler.py.
-         * -d32 works only for Java 1.6 sometimes.
-         * -XX:+TieredCompilation should help with Java 1.7
-         * By default, -client and -d32 (if available) are used.
-         * You can add your own set of flags. They will override defaults.
-         * https://groups.google.com/forum/?fromgroups=#!topic/closure-library-discuss/7w_O9-vzlj4
-         * https://github.com/Steida/grunt-este/issues/1
          * @type {Array.<string>}
          */
-      , javaFlags: null
+      , javaFlags: []
 
         /**
          * One or more input files to calculate dependencies for. The
@@ -112,6 +104,16 @@ module.exports = function (grunt) {
          * @type {Array.<string>}
          */
       , locales: []
+        /**
+         * Whatever to create source map or not. It will be stored to %outname%.map.
+         * @type {boolean}
+         */
+      , createSourceMap: false
+        /**
+         * Append sourceMappingURL annotation to compiled code
+         * @type {boolean}
+         */
+      , appendSourceMappingURL: false
 
       });
       var done = this.async();
@@ -143,13 +145,8 @@ module.exports = function (grunt) {
         };
       };
 
-      if (options.javaFlags) {
-        buildAll();
-        return;
-      }
-
       detectFastJavaFlags(grunt, function(flags) {
-        options.javaFlags = flags;
+        options.javaFlags.push.apply(options.javaFlags, flags);
         buildAll();
       });
 
@@ -203,11 +200,21 @@ module.exports = function (grunt) {
 
       makeFlagFileFromListOfFilesToCompile(tempFlagFile.path);
 
+      sourceMapArgs = [];
+
+      if (options.createSourceMap) {
+        sourceMapArgs = createArgs({
+            create_source_map: '%outname%.map',
+            source_map_format: 'V3'
+        });
+      }
+
       var compilerArgs = ['-jar']
         .concat(options.javaFlags)
         .concat(options.compilerPath)
         .concat(options.compilerFlags)
         .concat(localeArgs)
+        .concat(sourceMapArgs)
         .concat(createArgs({
           js_output_file: outputFilePath
         , js: options.depsPath
@@ -229,6 +236,23 @@ module.exports = function (grunt) {
       }, function(error, result, code) {
         clearInterval(timer);
         grunt.log.write('\n');
+
+        pathToSourceMap = outputFilePath + '.map';
+
+        // source map file may not exists because of error during compilation
+        if (options.createSourceMap && grunt.file.exists(pathToSourceMap)) {
+          sourceMap = grunt.file.readJSON(pathToSourceMap);
+          // paths in source map are absolute paths on filesystem
+          sourceMap.sources = makePathsRelativeToWebRoot(sourceMap.sources, tempdir.path);
+          grunt.file.write(pathToSourceMap, JSON.stringify(sourceMap));
+
+          // sourceMappingURL is optional - you may not want to have source maps attached
+          // to production scripts
+          if (options.appendSourceMappingURL) {
+            sourceMappingAnnotation = '//# sourceMappingURL=/' + pathToSourceMap;
+            fs.writeFileSync(outputFilePath, sourceMappingAnnotation, {encoding:'utf-8', flag:'a'});
+          }
+        }
 
         // wrench because it removes nonempty directories
         wrench.rmdirSyncRecursive(tempdir.path);
@@ -414,7 +438,7 @@ module.exports = function (grunt) {
   };
 
   var getAllNamespaces = function(depsPath) {
-    var depsFile = fs.readFileSync(depsPath, 'utf8');
+    var depsFile = grunt.file.read(depsPath);
     var allNamespaces = [];
     var goog = {
       addDependency: function(src, namespaces, dependencies) {
@@ -435,4 +459,12 @@ module.exports = function (grunt) {
     allNamespaces.splice(idx, 1);
     return allNamespaces;
   };
+
+  var makePathsRelativeToWebRoot = function(paths, root, webroot) {
+    webroot = webroot || '/';
+    return paths.map(function(filepath) {
+      return path.join(webroot, path.relative(root, filepath));
+    });
+  };
+
 };

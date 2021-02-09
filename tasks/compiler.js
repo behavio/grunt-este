@@ -16,15 +16,14 @@
  */
 module.exports = function (grunt) {
 
-  grunt.registerMultiTask('esteCompiler', 'Task for Google Closure Compiler.',
+  grunt.registerMultiTask('esteCompiler', 'Simple Google Closure Compiler wrapper',
     function () {
 
       var options = this.options({
         compilerPath: './bower_components/closure-compiler/compiler.jar',
         js_output_file: './test_compiled.js',
-        js: './test.js',
         warning_level: 'VERBOSE'
-        // see other options at bottom of page
+        // All available options are at the end of the page.
       });
 
       var args = ['-jar', options.compilerPath];
@@ -41,6 +40,10 @@ module.exports = function (grunt) {
         for (var i = 0; i < value.length; i++)
           args.push('--' + option + '=' + value[i]);
       }
+
+      this.filesSrc.forEach(function(src) {
+        args.push('--js=' + src);
+      });
 
       var done = this.async();
       var onSpawnDone = function(error, result, code) {
