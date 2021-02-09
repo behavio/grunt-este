@@ -1,0 +1,45 @@
+{
+  "name": "grunt-este",
+  "version": "2.3.1",
+  "description": "Este Grunt tasks",
+  "keywords": [
+    "Closure",
+    "CoffeeScript",
+    "Compiler",
+    "Google",
+    "gruntplugin",
+    "Mocha",
+    "Soy",
+    "Stylus"
+  ],
+  "author": "Daniel Steigerwald <daniel@steigerwald.cz>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Steida/grunt-este.git"
+  },
+  "dependencies": {
+    "coffee-script": "~1.6.3",
+    "coffee2closure": "~0.0.14",
+    "esprima": "~1.0.3",
+    "mocha": "~1.11.0",
+    "require-uncache": "~0.0.1",
+    "sinon": "~1.7.2",
+    "stylus": "~0.32.1",
+    "temporary": "~0.0.5",
+    "wrench": "~1.5.1",
+    "chai": "~1.7.2"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.6.0",
+    "grunt-release": "~0.3.5"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "engines": {
+    "node": ">= 0.9.2"
+  },
+  "main": "lib",
+  "license": "MIT"
+}
